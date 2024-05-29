@@ -1,0 +1,7 @@
+server:
+  port: 8082
+debug : true
+oauth:
+  jwts:
+    - issuer-url: http://localhost:8080
+      jwks-url : http://localhost:8080/oauth2/jwks
