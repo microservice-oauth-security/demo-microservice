@@ -11,7 +11,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
@@ -51,7 +52,10 @@ public class SecurityConfig {
 
    private AuthenticationManager authenticationManager(String jwksUrl)
    {
-       JwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwksUrl).build();
+       NimbusJwtDecoder  decoder = NimbusJwtDecoder.withJwkSetUri(jwksUrl).build();
+       // to validate the token was created for client "api-client-id" from the authorization application
+       decoder.setJwtValidator(new JwtClaimValidator<List<String>>
+              (JwtClaimNames.AUD, list -> list != null && list.contains("api-client-id")));
        JwtAuthenticationProvider provider = new JwtAuthenticationProvider(decoder);
        provider.setJwtAuthenticationConverter(jwtAuthenticationConverter());
        return new ProviderManager(provider);
